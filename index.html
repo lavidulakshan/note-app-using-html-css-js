@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Note Notepad</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background-color: #4a90e2;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .note-list {
+            width: 300px;
+            background-color: #fff;
+            border-right: 1px solid #e0e0e0;
+            overflow-y: auto;
+        }
+        .note-item {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+        }
+        .note-item:hover {
+            background-color: #f5f5f5;
+        }
+        .note-item.active {
+            background-color: #e6f2ff;
+        }
+        .note-editor {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        #note-title {
+            font-size: 18px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+        }
+        #note-content {
+            flex: 1;
+            padding: 15px;
+            font-size: 16px;
+            line-height: 1.6;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            resize: none;
+        }
+        .button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background-color: #3a7bc8;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Multi-Note Notepad</h1>
+    </div>
+    <div class="container">
+        <div class="note-list" id="note-list">
+            <!-- Note list items will be dynamically added here -->
+        </div>
+        <div class="note-editor">
+            <input type="text" id="note-title" placeholder="Note Title">
+            <textarea id="note-content" placeholder="Start typing your note here..."></textarea>
+            <button class="button" onclick="saveNote()">Save Note</button>
+        </div>
+    </div>
+
+    <script>
+        let notes = [];
+        let currentNoteIndex = -1;
+
+        function saveNote() {
+            const title = document.getElementById('note-title').value;
+            const content = document.getElementById('note-content').value;
+            
+            if (currentNoteIndex === -1) {
+                // New note
+                notes.push({ title, content });
+                currentNoteIndex = notes.length - 1;
+            } else {
+                // Update existing note
+                notes[currentNoteIndex] = { title, content };
+            }
+            
+            updateNoteList();
+            clearEditor();
+        }
+
+        function updateNoteList() {
+            const noteList = document.getElementById('note-list');
+            noteList.innerHTML = '';
+            notes.forEach((note, index) => {
+                const noteItem = document.createElement('div');
+                noteItem.className = 'note-item';
+                noteItem.textContent = note.title || 'Untitled Note';
+                noteItem.onclick = () => loadNote(index);
+                noteList.appendChild(noteItem);
+            });
+        }
+
+        function loadNote(index) {
+            currentNoteIndex = index;
+            const note = notes[index];
+            document.getElementById('note-title').value = note.title;
+            document.getElementById('note-content').value = note.content;
+            updateActiveNoteStyle(index);
+        }
+
+        function updateActiveNoteStyle(activeIndex) {
+            const noteItems = document.querySelectorAll('.note-item');
+            noteItems.forEach((item, index) => {
+                item.classList.toggle('active', index === activeIndex);
+            });
+        }
+
+        function clearEditor() {
+            document.getElementById('note-title').value = '';
+            document.getElementById('note-content').value = '';
+            currentNoteIndex = -1;
+            updateActiveNoteStyle(-1);
+        }
+
+        // Add a new note button
+        const newNoteBtn = document.createElement('button');
+        newNoteBtn.textContent = 'New Note';
+        newNoteBtn.className = 'button';
+        newNoteBtn.style.width = '100%';
+        newNoteBtn.onclick = clearEditor;
+        document.querySelector('.note-list').prepend(newNoteBtn);
+    </script>
+</body>
+</html>
